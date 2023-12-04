@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  alt-verifier:
+  - apiVersion: v2
+    appVersion: v0.7.3
+    created: "2023-12-07T07:17:02.493880238Z"
+    description: Helm Chart for AltVerifier
+    digest: c944b152fa5596771837ce4c373b0ef8b879bcebb5707416a0262fdc378cf070
+    home: https://github.com/alt-research/charts
+    name: alt-verifier
+    type: application
+    urls:
+    - https://github.com/alt-research/charts/releases/download/alt-verifier-0.1.0/alt-verifier-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-12-07T07:17:02.493889876Z"

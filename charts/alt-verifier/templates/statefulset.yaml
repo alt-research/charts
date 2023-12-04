@@ -1,0 +1,303 @@
+{{- $fullname := include "alt-verifier.fullname" $ }}
+{{- $secretName := include "alt-verifier.secretName" $ }}
+{{- range $i, $index := untilStep 1 ( (add .Values.nodeCount 1) | int ) 1 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-{{ $index }}
+  labels:
+    {{- include "alt-verifier.labels" $ | nindent 4 }}
+    index: {{ quote $index }}
+spec:
+  type: {{ $.Values.service.type }}
+  selector:
+    {{- include "alt-verifier.selectorLabels" $ | nindent 4 }}
+    index: {{ quote $index }}
+  ports:
+  - name: rpc
+    port: {{ $.Values.service.rpc }}
+    targetPort: rpc
+  - name: ws
+    port: {{ $.Values.service.ws }}
+    targetPort: ws
+  - name: p2p
+    port: {{ $.Values.service.p2p }}
+    targetPort: p2p
+  - name: prometheus
+    port: {{ $.Values.service.prometheus }}
+    targetPort: prometheus
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $fullname }}-{{ $index }}
+  labels:
+    {{- include "alt-verifier.labels" $ | nindent 4 }}
+    index: {{ quote $index }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "alt-verifier.selectorLabels" $ | nindent 6 }}
+      index: {{ quote $index }}
+  serviceName: {{ $fullname }}-{{ $index }}
+  {{- if $.Values.updateStrategy }}
+  updateStrategy: {{- toYaml $.Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- if $.Values.podManagementPolicy }}
+  podManagementPolicy: {{ $.Values.podManagementPolicy | quote }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config-scripts: {{ include (print $.Template.BasePath "/configmap-scripts.yaml") $ | sha256sum }}
+      {{- with $.Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "alt-verifier.selectorLabels" $ | nindent 8 }}
+        index: {{ quote $index }}
+    spec:
+      initContainers:
+      {{- if and $.Values.chainspec.storageUrl $.Values.chainspec.name }}
+      - name: chainspec
+        image: {{ include "alt-verifier.image" $ }}
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        workingDir: /data
+        volumeMounts:
+        - name: persistence
+          mountPath: /data
+        command:
+        - /bin/bash
+        - -c
+        - |
+          curl -sJL {{ printf "%s/%s" $.Values.chainspec.storageUrl $.Values.chainspec.name }} -o /data/{{ $.Values.chainspec.name }};
+          ls -l /data/{{ $.Values.chainspec.name }}
+      {{- end }}
+      {{- if $.Values.secret.privateKeys }}
+      {{- if $.Values.secret.mnemonic }}{{ fail "mnemonic not supported yet"}}{{ end }}
+      - name: insert-keys
+        image: {{ include "alt-verifier.image" $ }}
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        workingDir: /data
+        volumeMounts:
+        - name: persistence
+          mountPath: /data
+          subPath: {{ $.Values.persistence.chainBaseDir }}
+        env:
+        - name: PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ $secretName }}
+              key: privateKey{{ (sub $index 1) }}
+        - name: INDEX
+          value: "{{ $index }}"
+        - name: CHAIN
+          value: "{{ $.Values.chainspec.name }}"
+        command:
+        - /bin/bash
+        - -c
+        - |
+          {{- tpl $.Values.secret.keyInsertScript $ | nindent 10 }}
+      {{- end }}
+      containers:
+      - name: node
+        securityContext: {{- toYaml $.Values.securityContext | nindent 10 }}
+        image: {{ include "alt-verifier.image" $ }}
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        workingDir: /data
+        ports:
+        - containerPort: {{ $.Values.ports.rpc }}
+          {{- with $.Values.hostPorts.rpc }}
+          hostPort: {{ . }}
+          {{- end }}
+          name: rpc
+          protocol: TCP
+        - containerPort: {{ $.Values.ports.ws }}
+          {{- with $.Values.hostPorts.ws }}
+          hostPort: {{ . }}
+          {{- end }}
+          name: ws
+          protocol: TCP
+        - containerPort: {{ $.Values.ports.p2p }}
+          {{- with $.Values.hostPorts.p2p }}
+          hostPort: {{ . }}
+          {{- end }}
+          name: p2p
+          protocol: TCP
+        - containerPort: {{ $.Values.ports.prometheus }}
+          {{- with $.Values.hostPorts.prometheus }}
+          hostPort: {{ . }}
+          {{- end }}
+          name: prometheus
+        - containerPort: {{ $.Values.ports.verifierPrometheus }}
+          {{- with $.Values.hostPorts.verifierPrometheus }}
+          hostPort: {{ . }}
+          {{- end }}
+          name: verifierprom
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml $.Values.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml $.Values.readinessProbe | nindent 10 }}
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: p2p
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 20
+        # readinessProbe:
+        #   tcpSocket:
+        #     port: p2p
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
+        resources: {{- toYaml $.Values.resources | nindent 12 }}
+        # multilog size 12mb, no. of files 10
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: persistence
+          mountPath: /data
+          subPath: {{ $.Values.persistence.chainBaseDir }}
+        env:
+        - name: RUST_LOG
+          value: {{ $.Values.RUST_LOG }}
+        - name: NODEKEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ $secretName }}
+              key: nodeKey{{ (sub $index 1) }}
+        - name: INDEX
+          value: "{{ $index }}"
+        # command and args
+        {{- $fixedArgs := dict }}
+        {{- $fixedArgs = set $fixedArgs "basePath" "/data" }}
+        {{- $fixedArgs = set $fixedArgs "nodeKey" "$NODEKEY" }}
+        {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-%d" $fullname $index ) }}
+        {{- $fixedArgs = set $fixedArgs "chain" $.Values.chainspec.name }}
+        {{- $fixedArgs = set $fixedArgs "verifierPrometheusPort" $.Values.ports.verifierPrometheus }}
+        {{- $args := $fixedArgs }}
+        {{- if $.Values.args }}
+        {{- $args = mustMergeOverwrite $fixedArgs $.Values.args }}
+        {{- end }}
+        {{- if and (not $args.altbeaconUrl) $.Values.beaconWsUrl }}
+        {{- $args = set $args "altbeaconUrl" $.Values.beaconWsUrl }}
+        {{- end }}
+        {{- $fixedProducerArgs := dict }}
+        {{- $fixedProducerArgs = set $fixedProducerArgs "name" (printf "%s-%d" $fullname $index ) }}
+        {{- $fixedProducerArgs = set $fixedProducerArgs "port" $.Values.ports.p2p }}
+        {{- $fixedProducerArgs = set $fixedProducerArgs "rpcPort" $.Values.ports.rpc }}
+        {{- $fixedProducerArgs = set $fixedProducerArgs "wsPort" $.Values.ports.ws }}
+        {{- $fixedProducerArgs = set $fixedProducerArgs "prometheusPort" $.Values.ports.prometheus }}
+        {{- $producerArgs := $fixedProducerArgs }}
+        {{- if $.Values.producerArgs }}
+        {{- $producerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.producerArgs }}
+        {{- end }}
+        {{- $preRunScript := trim $.Values.preRunScript }}
+        {{- if not (hasSuffix ";" $preRunScript) }}
+        {{- $preRunScript = printf "%s;" $preRunScript }}}
+        {{- end }}
+        command:
+        - /bin/bash
+        - '-c'
+        args:
+        - >-
+          {{ $preRunScript }}
+          exec alt-verifier
+          {{- if $.Values.rollup.enabled }}
+          {{ $.Values.rollup.subCommand }}
+          {{- end }}
+          {{- range $k, $v := $args }}
+            {{- if $v }}
+              {{- if eq (toString $v) "true" }}
+          --{{ kebabcase $k }}
+              {{- else if (kindIs "slice" $v)}}
+                {{- range $vi := $v}}
+          --{{ kebabcase $k }}={{ tpl (toString $vi) $ | quote }}
+                {{- end }}
+              {{- else }}
+          --{{ kebabcase $k }}={{ tpl (toString $v) $ | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          --
+          {{- range $k, $v := $producerArgs }}
+            {{- if $v }}
+              {{- if eq (toString $v) "true" }}
+          --{{ kebabcase $k }}
+              {{- else if (kindIs "slice" $v)}}
+                {{- range $vi := $v}}
+          --{{ kebabcase $k }}={{ tpl (toString $vi) $ | quote }}
+                {{- end }}
+              {{- else }}
+          --{{ kebabcase $k }}={{ tpl (toString $v) $ | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+      {{- end }}
+      serviceAccountName: {{ include "alt-verifier.serviceAccountName" $ }}
+      {{- if $.Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.image.pullSecrets }}
+      - name: {{ . | quote }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      {{- with $.Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: scripts
+        configMap:
+          name: {{ include "alt-verifier.fullname" $ }}-scripts
+  {{- if not $.Values.persistence.enabled }}
+      - name: persistence
+        {{- with $.Values.persistence.emptyDir }}
+        emptyDir:
+          {{- toYaml . | nindent 10 }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+  {{- else if $.Values.persistence.existingClaim }}
+      - name: persistence
+        persistentVolumeClaim:
+          claimName: {{ printf "%s" (tpl $.Values.persistence.existingClaim .) }}
+  {{- else }}
+  volumeClaimTemplates:
+  - metadata:
+      name: persistence
+      labels:
+        {{- include "alt-verifier.selectorLabels" $ | nindent 8 }}
+        index: {{ quote $index }}
+      {{- if $.Values.persistence.annotations }}
+      annotations:
+        {{- toYaml $.Values.persistence.annotations | nindent 8 }}
+      {{- end }}
+    spec:
+      accessModes:
+      {{- range $.Values.persistence.accessModes }}
+      - {{ . | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $.Values.persistence.size | quote }}
+      {{- with $.Values.persistence.storageClassName }}
+      storageClassName: {{ . | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}

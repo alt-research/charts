@@ -132,28 +132,11 @@ spec:
           hostPort: {{ . }}
           {{- end }}
           name: prometheus
-        - containerPort: {{ $.Values.ports.verifierPrometheus }}
-          {{- with $.Values.hostPorts.verifierPrometheus }}
-          hostPort: {{ . }}
-          {{- end }}
-          name: verifierprom
-          protocol: TCP
         livenessProbe:
           {{- toYaml $.Values.livenessProbe | nindent 10 }}
         readinessProbe:
           {{- toYaml $.Values.readinessProbe | nindent 10 }}
-        # livenessProbe:
-        #   tcpSocket:
-        #     port: p2p
-        #   initialDelaySeconds: 15
-        #   periodSeconds: 20
-        # readinessProbe:
-        #   tcpSocket:
-        #     port: p2p
-        #   initialDelaySeconds: 5
-        #   periodSeconds: 10
         resources: {{- toYaml $.Values.resources | nindent 12 }}
-        # multilog size 12mb, no. of files 10
         volumeMounts:
         - name: scripts
           mountPath: /scripts
@@ -161,8 +144,6 @@ spec:
           mountPath: /data
           subPath: {{ $.Values.persistence.chainBaseDir }}
         env:
-        - name: RUST_LOG
-          value: {{ $.Values.RUST_LOG }}
         - name: NODEKEY
           valueFrom:
             secretKeyRef:
@@ -170,33 +151,30 @@ spec:
               key: nodeKey{{ (sub $index 1) }}
         - name: INDEX
           value: "{{ $index }}"
+        {{- range $k, $v := $.Values.env }}
+        - name: {{ $k }}
+          value: {{ tpl $v $ | quote }}
+        {{- end }}
         # command and args
         {{- $fixedArgs := dict }}
         {{- $fixedArgs = set $fixedArgs "basePath" "/data" }}
         {{- $fixedArgs = set $fixedArgs "nodeKey" "$NODEKEY" }}
         {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-%d" $fullname $index ) }}
         {{- $fixedArgs = set $fixedArgs "chain" $.Values.chainspec.name }}
-        {{- $fixedArgs = set $fixedArgs "verifierPrometheusPort" $.Values.ports.verifierPrometheus }}
+        {{- $fixedArgs = set $fixedArgs "verifierPrometheusPort" $.Values.ports.prometheus }}
+        {{- $fixedArgs = set $fixedArgs "verifierPrometheusExternal" true }}
         {{- $args := $fixedArgs }}
         {{- if $.Values.args }}
         {{- $args = mustMergeOverwrite $fixedArgs $.Values.args }}
         {{- end }}
-        {{- if and (not $args.altbeaconUrl) $.Values.beaconWsUrl }}
-        {{- $args = set $args "altbeaconUrl" $.Values.beaconWsUrl }}
-        {{- end }}
         {{- $fixedProducerArgs := dict }}
-        {{- $fixedProducerArgs = set $fixedProducerArgs "name" (printf "%s-%d" $fullname $index ) }}
-        {{- $fixedProducerArgs = set $fixedProducerArgs "port" $.Values.ports.p2p }}
-        {{- $fixedProducerArgs = set $fixedProducerArgs "rpcPort" $.Values.ports.rpc }}
-        {{- $fixedProducerArgs = set $fixedProducerArgs "wsPort" $.Values.ports.ws }}
-        {{- $fixedProducerArgs = set $fixedProducerArgs "prometheusPort" $.Values.ports.prometheus }}
         {{- $producerArgs := $fixedProducerArgs }}
         {{- if $.Values.producerArgs }}
         {{- $producerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.producerArgs }}
         {{- end }}
         {{- $preRunScript := trim $.Values.preRunScript }}
         {{- if not (hasSuffix ";" $preRunScript) }}
-        {{- $preRunScript = printf "%s;" $preRunScript }}}
+        {{- $preRunScript = printf "%s;" $preRunScript }}
         {{- end }}
         command:
         - /bin/bash

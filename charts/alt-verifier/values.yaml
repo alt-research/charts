@@ -1,73 +1,73 @@
 # -- (int) nodeCount count of producers, not like replicaCounts, it's one producer one statefulset
 nodeCount: 0
 
-## Image of https://github.com/alt-research/alt-verifier
+# Image of https://github.com/alt-research/alt-verifier
 image:
-  ## @param image.repository Image repository
+  # -- Image repository
   repository: public.ecr.aws/altlayer/alt-verifier
-  ## @param image.pullPolicy Specify a imagePullPolicy
-  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  # -- Specify a imagePullPolicy
+  # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  # ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: IfNotPresent
-  ## @param image.tag Image tag. Overrides the image tag whose default is the chart appVersion. (default to "master" before first release)
-  ## If mode is validator, default tag will be appVersion-tracing
+  # -- Image tag. Overrides the image tag whose default is the chart appVersion. (default to "master" before first release)
+  # If mode is validator, default tag will be appVersion-tracing
   tag: ""
 
-  ## @param image.pullSecrets Specify docker-registry secret names as an array
-  ## Optionally specify an array of imagePullSecrets.
-  ## Secrets must be manually created in the namespace.
-  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # -- Specify docker-registry secret names as an array
+  # Optionally specify an array of imagePullSecrets.
+  # Secrets must be manually created in the namespace.
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   # Example:
   # pullSecrets:
   #   - myRegistryKeySecretName·
   #
   pullSecrets: []
 
-## @param updateStrategy.type statefulset strategy type
-## @skip updateStrategy.rollingUpdate
-## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
-##
+# -- statefulset strategy type
+# @skip updateStrategy.rollingUpdate
+# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+#
 updateStrategy:
-  ## StrategyType
-  ## Can be set to RollingUpdate or OnDelete
-  ##
+  # StrategyType
+  # Can be set to RollingUpdate or OnDelete
+  #
   type: RollingUpdate
   rollingUpdate: {}
 
-## @param podManagementPolicy podManagementPolicy to manage scaling operation of %%MAIN_CONTAINER_NAME%% pods
-## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
-##
+# -- podManagementPolicy to manage scaling operation of %%MAIN_CONTAINER_NAME%% pods
+# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+#
 podManagementPolicy: ""
 
-## Specifies whether a ServiceAccount should be created
+# Specifies whether a ServiceAccount should be created
 serviceAccount:
-  ## @param serviceAccount.create Enable the creation of a ServiceAccount
+  # -- Enable the creation of a ServiceAccount
   create: true
-  ## @param serviceAccount.annotations Annotations to add to the service account
+  # -- Annotations to add to the service account
   annotations: {}
-  ## @param serviceAccount.name The name of the service account to use.
-  ## If not set and create is true, a name is generated using the fullname template
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-## @param dnsConfig DNS config of Pod
+# -- DNS config of Pod
 dnsConfig:
   {}
   # options:
   # - name: ndots
   #   value: "1"
 
-## @param podAnnotations Annotations of producer Pod
+# -- Annotations of producer Pod
 podAnnotations: {}
 
-## Pod level Security Context
+# Pod level Security Context
 podSecurityContext:
   # fsGroup: 2000
   # fsGroupChangePolicy: OnRootMismatch
   # TODO: fix permission as non-root
-  ## @skip podSecurityContext.runAsUser
+  # @skip podSecurityContext.runAsUser
   runAsUser: 0
 
-## @param securityContext Security Context of producer container
+# -- Security Context of producer container
 # Example:
 #
 # securityContext:
@@ -79,32 +79,32 @@ podSecurityContext:
 #   runAsUser: 1000
 securityContext: {}
 
-## Settings of the service of all producers
+# Settings of the service of all producers
 service:
-  ## @param service.type type of service
+  # -- type of service
   type: ClusterIP
-  ## @param service.rpc RPC port of service
+  # -- RPC port of service
   rpc: 9933
-  ## @param service.ws Websocket port of service
+  # -- Websocket port of service
   ws: 9944
-  ## @param service.p2p P2P port of service
+  # -- P2P port of service
   p2p: 30333
-  ## @param service.prometheus Prometheus port of service
+  # -- Prometheus port of service
   prometheus: 9615
 
-## Ingress for alt-verifier services (JSONRPC over HTTP and Webcoket)
+# Ingress for alt-verifier services (JSONRPC over HTTP and Webcoket)
 ingress:
-  ## @param ingress.enabled Enable ingress
+  # -- Enable ingress
   enabled: false
-  ## @param ingress.className ingressClassName of ingress
+  # -- ingressClassName of ingress
   className: ""
-  ## @param ingress.annotations annotations of ingress
+  # -- annotations of ingress
   annotations:
     {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  ## @param ingress.hosts hosts of ingress
-  ## @extra ingress.hosts[*].paths[*].wsPath [string] websocket path
+  # -- hosts of ingress
+  # @extra ingress.hosts[*].paths[*].wsPath [string] websocket path
   # Example:
   # hosts:
   # - host: chart-example.local
@@ -114,7 +114,7 @@ ingress:
   #     pathType: ImplementationSpecific
   hosts: []
 
-  ## @param ingress.tls TLS setting of ingress
+  # -- TLS setting of ingress
   # Example:
   # tls:
   # - secretName: chart-example-tls
@@ -122,18 +122,18 @@ ingress:
   #   - chart-example.local
   tls: []
 
-## Websocket Ingress for alt-verifier websocket services (JSONRPC over Webcoket)
+# Websocket Ingress for alt-verifier websocket services (JSONRPC over Webcoket)
 wsIngress:
-  ## @param wsIngress.enabled Enable ingress
+  # -- Enable ingress
   enabled: false
-  ## @param wsIngress.className ingressClassName of ingress
+  # -- ingressClassName of ingress
   className: ""
-  ## @param wsIngress.annotations annotations of ingress
+  # -- annotations of ingress
   annotations:
     {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  ## @param wsIngress.hosts hosts of ingress
+  # -- hosts of ingress
   # Example:
   # hosts:
   # - host: chart-example.local
@@ -142,7 +142,7 @@ wsIngress:
   #     pathType: ImplementationSpecific
   hosts: []
 
-  ## @param wsIngress.tls TLS setting of ingress
+  # -- TLS setting of ingress
   # Example:
   # tls:
   # - secretName: chart-example-tls
@@ -150,139 +150,115 @@ wsIngress:
   #   - chart-example.local
   tls: []
 
-## @param resources Resource seetings of producer container
-## We usually recommend not to specify default resources and to leave this as a conscious
-## choice for the user. This also increases chances charts run on environments with little
-## resources, such as Minikube. If you do want to specify resources, uncomment the following
-## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-## limits:
-##   cpu: 100m
-##   memory: 128Mi
-## requests:
-##   cpu: 100m
-##   memory: 128Mi
+# -- Resource seetings of producer container
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
 resources: {}
-## @param nodeSelector nodeSelector of pod
+# -- nodeSelector of pod
 nodeSelector: {}
-## @param tolerations tolerations of pod
+# -- tolerations of pod
 tolerations: []
-## @param affinity affinity of pod
+# -- affinity of pod
 affinity: {}
 
-## Persistent Volume settings
+# Persistent Volume settings
 persistence:
-  ## @param persistence.enabled setup volumeClaimTemplate for chaindata persistent volume for producer statefulsets
+  # -- setup volumeClaimTemplate for chaindata persistent volume for producer statefulsets
   enabled: true
-  ## @param persistence.existingClaim If set, use existing claim instead of creating a new one
+  # -- If set, use existing claim instead of creating a new one
   existingClaim: ""
-  ## @param persistence.size Size of volume.
-  ## **NOTICE**: gp3 volume can be live resized when more space needed, no need to provision a large volume at start
+  # -- Size of volume.
+  # **NOTICE**: gp3 volume can be live resized when more space needed, no need to provision a large volume at start
   size: 10Gi
-  ## @param persistence.storageClassName storageClassName of PVC
+  # -- storageClassName of PVC
   storageClassName: ""
-  ## @param persistence.accessModes accessModes of PVC
+  # -- accessModes of PVC
   accessModes:
     - ReadWriteOnce
-  ## @param persistence.annotations annotations of PVC
+  # -- annotations of PVC
   annotations: {}
   # key: "value"
-  ## @param persistence.chainBaseDir Dir of volume to store chain data
+  # -- Dir of volume to store chain data
   chainBaseDir: ""
-  ## @param persistence.emptyDir EmptyDir settings
-  ## Will be used when `persistence.enabled=false`
-  ## Ref: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+  # -- EmptyDir settings
+  # Will be used when `persistence.enabled=false`
+  # Ref: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
   emptyDir:
     {}
     # medium: ''
     # sizeLimit: ''
 
-##################################
-## @section Node Type and Naming
-##################################
+#################
+# @section Node Type and Naming
+#################
 
-## @param nameOverride String to be used in labels
+# -- String to be used in labels
 nameOverride: ""
-## @param fullnameOverride String to be used as the base of most resource names
+# -- String to be used as the base of most resource names
 fullnameOverride: ""
-## @param projectName String to be used in many resource names
+# -- String to be used in many resource names
 projectName: ""
 
-#################################
-## @section Node Configurations
-#################################
+#################
+# @section Node Configurations
+#################
 
-## @param beaconWsUrl **Deprecated** the beacon websocket rpc url for producer to connect to (http not supported)
-beaconWsUrl: ""
-
-## Provides the Mnemonic and NodeKeys
+# Provides the Mnemonic and NodeKeys
 secret:
-  ## @param secret.create create secret instead of using exsisting one
+  # -- create secret instead of using exsisting one
   create: true
-  ## @param secret.name if `create==false` this is the extra secret's name
+  # -- if `create==false` this is the extra secret's name
   name: ""
-  ## @param secret.mnemonic creaing a new secret with this mnemonic
+  # -- creaing a new secret with this mnemonic
   mnemonic: ""
-  ## @param secret.privateKeys ecdsa private key that will be inserted into the node's keystore
+  # -- ecdsa private key that will be inserted into the node's keystore
   privateKeys: []
-  ## @param secret.nodeKeys creaing a new secret with thiese keys
+  # -- creaing a new secret with thiese keys
   nodeKeys: []
-  ## @skip secret.keyInsertScript
+  # @skip secret.keyInsertScript
   keyInsertScript: |
     rm /data/*/*/keystore/*
     /usr/local/bin/alt-verifier key insert -d /data --chain=$CHAIN --suri="$PRIVATE_KEY" --key-type acco --scheme ecdsa;
     ls /data/*/*/keystore
 
-## Provides the chainspec.json. The download url will be storageUrl/fileName
+# Provides the chainspec.json. The download url will be storageUrl/fileName
 chainspec:
-  ## @param chainspec.storageUrl url of the chainspec's dir of storage
+  # -- url of the chainspec's dir of storage
   storageUrl: ""
-  ## @param chainspec.name built-in chainspec name or filename of chainspec to download
+  # -- built-in chainspec name or filename of chainspec to download
   name: ""
 
-rollup:
-  ## @param rollup.enabled enable rollup mode
-  enabled: false
-  ## @param rollup.subCommand the subcommand of alt-verifier to do rollup and challenge etc.
-  subCommand: rollup
-  ## @param rollup.altInstructionUrl url to download alt-instruction-runtime.wasm, it will be set as --instruction-wasm-path=/data/inst.wasm after downlaod
-  altInstructionUrl: ""
-
-## Exposed container ports
+# Exposed container ports
 ports:
-  ## @param ports.p2p P2P port of producer
+  # -- P2P port of verifier
   p2p: 30334
-  ## @param ports.rpc "JSONRPC over HTTP" port of producer
-  rpc: 9934
-  ## @param ports.ws "JSONRPC over Websocket" port of producer
-  ws: 9945
-  ## @param ports.verifierPrometheus Prometheus port of verifier
-  verifierPrometheus: 9615
-  ## @param ports.prometheus Prometheus port of producer
-  prometheus: 9616
+  # -- Prometheus port of verifier
+  prometheus: 9615
 
-## Liveness probe
-# @default -- See [`values.yaml`](values.yaml)
-## @skip livenessProbe.httpGet
-## @skip livenessProbe.initialDelaySeconds
-## @skip livenessProbe.timeoutSeconds
-## @skip livenessProbe.periodSeconds
-## @skip livenessProbe.successThreshold
-## @skip livenessProbe.failureThreshold
+# -- Liveness probe
 livenessProbe:
   httpGet:
     path: /metrics
-    port: verifierprom
+    port: prometheus
   initialDelaySeconds: 0
   timeoutSeconds: 1
   periodSeconds: 10
   successThreshold: 1
   failureThreshold: 3
 
-## Readiness probe
+# Readiness probe
 readinessProbe:
   httpGet:
     path: /metrics
-    port: verifierprom
+    port: prometheus
   initialDelaySeconds: 0
   timeoutSeconds: 1
   periodSeconds: 10
@@ -290,59 +266,36 @@ readinessProbe:
   failureThreshold: 3
 
 hostPorts:
-  ## @param hostPorts.p2p P2P port
+  # -- P2P port
   p2p:
-  ## @param hostPorts.rpc "JSONRPC over HTTP" port of producer
-  rpc:
-  ## @param hostPorts.ws "JSONRPC over Websocket" port of producer
-  ws:
-  ## @param hostPorts.verifierPrometheus Prometheus port of verifier
-  verifierPrometheus:
-  ## @param hostPorts.prometheus Prometheus port of producer
+  # -- Prometheus port of producer
   prometheus:
 
-## @param RUST_LOG rustlog log level env var.
-RUST_LOG: runtime=debug
+env: {}
 
-## @section Producer Commandline Arguments
-
-## @descriptionStart
-## Camelcased args, will be auto converted to parameters.
-##
-## For example:
-## - `validator: false` and `telemetryUrl: ''` will be omitted
-## - `wsExternal: true` will be `--ws-external`
-## - `rpcCors: all` will be `--rpc-cors=all`
-## @descriptionEnd
-
-## @param preRunScript script that run before running verifier
+# -- script that run before running verifier
 preRunScript: ""
 
 args:
-  ## @param args.log Sets a custom logging filter. Syntax is <target>=<level>, e.g. -lsync=debug
+  # -- Sets a custom logging filter. Syntax is <target>=<level>, e.g. -lsync=debug
   log: info
-  ## @param args.appId The app id of the layer 2, default is alt_producer 's 0
+  # -- The app id of the layer 2, default is alt_producer 's 0
   appId: 0
-  ## @param args.verifierPrometheusExternal
-  verifierPrometheusExternal: true
-  ## @param args.altbeaconUrl The altbeacon WebSockets RPC URL
+  # -- The altbeacon WebSockets RPC URL
   altbeaconUrl:
 
-## <PRODUCER_ARGS>... of verifier
-producerArgs:
-  ## @param producerArgs.prometheusExternal param of alt-verifier exec
-  prometheusExternal: true
-  ## @param producerArgs.telemetryUrl param of alt-verifier exec, format: 'telemetry-url level-num'
-  telemetryUrl: ""
-  ## @param producerArgs.rpcCors param of alt-verifier exec
-  rpcCors: all
-  ## @param producerArgs.execution param of alt-verifier exec
-  execution: native-else-wasm
-
-###############################
-## @section Node Maintainance
-###############################
+# <PRODUCER_ARGS>... of verifier
+producerArgs: []
 
 serviceMonitor:
-  ## @param serviceMonitor.enabled create prometheus-stack's serviceMonitor for producer
+  # -- create prometheus-stack's serviceMonitor for producer
   enabled: false
+
+# -- eth 1 rollup arguments
+rollup:
+  # -- enable rollup mode
+  enabled: false
+  # -- the subcommand of alt-verifier to do rollup and challenge etc.
+  subCommand: rollup
+  # -- url to download alt-instruction-runtime.wasm, it will be set as --instruction-wasm-path=/data/inst.wasm after downlaod
+  altInstructionUrl: ""

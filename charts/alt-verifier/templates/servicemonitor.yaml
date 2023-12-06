@@ -6,27 +6,11 @@ metadata:
   labels:
     {{- include "alt-verifier.labels" $ | nindent 4 }}
 spec:
+  selector:
+    matchLabels:
+      {{- include "alt-verifier.selectorLabels" $ | nindent 6 }}
+      index: all
   endpoints:
   - path: /metrics
     port: prometheus
-  selector:
-    matchLabels:
-      {{- include "alt-verifier.selectorLabels" $ | nindent 6 }}
-      index: all
-
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: {{ include "alt-verifier.fullname" $ }}-verifier
-  labels:
-    {{- include "alt-verifier.labels" $ | nindent 4 }}
-spec:
-  endpoints:
-  - path: /metrics
-    port: verifierPrometheus
-  selector:
-    matchLabels:
-      {{- include "alt-verifier.selectorLabels" $ | nindent 6 }}
-      index: all
 {{- end }}

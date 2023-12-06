@@ -20,4 +20,4 @@ if [ ! -f "$HELM_DOCS" ] || [ "$version" != "$VERSION" ]; then
     curl -sSL "https://github.com/norwoodj/helm-docs/releases/download/v${VERSION}/helm-docs_${VERSION}_${OS}_${ARCH}.tar.gz" | tar xz -C $BINDIR helm-docs
 fi
 $HELM_DOCS --version
-$HELM_DOCS -s=file -c=$REPO_ROOT/charts
+$HELM_DOCS -s=file --ignore-non-descriptions -c=$REPO_ROOT/charts

@@ -1,0 +1,263 @@
+# Image of https://github.com/alt-research/alt-verifier
+image:
+  # -- Image repository
+  repository: public.ecr.aws/altlayer/alt-verifier
+  # -- Specify a imagePullPolicy
+  # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  # ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  pullPolicy: IfNotPresent
+  # -- Image tag. Overrides the image tag whose default is the chart appVersion. (default to "master" before first release)
+  # If mode is validator, default tag will be appVersion-tracing
+  tag: ""
+
+  # -- Specify docker-registry secret names as an array
+  # Optionally specify an array of imagePullSecrets.
+  # Secrets must be manually created in the namespace.
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # Example:
+  # pullSecrets:
+  #   - myRegistryKeySecretName·
+  #
+  pullSecrets: []
+
+# -- statefulset strategy type
+# @skip updateStrategy.rollingUpdate
+# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+#
+updateStrategy:
+  # StrategyType
+  # Can be set to RollingUpdate or OnDelete
+  #
+  type: RollingUpdate
+  rollingUpdate: {}
+
+# -- podManagementPolicy to manage scaling operation of %%MAIN_CONTAINER_NAME%% pods
+# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+#
+podManagementPolicy: ""
+
+# Specifies whether a ServiceAccount should be created
+serviceAccount:
+  # -- Enable the creation of a ServiceAccount
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- DNS config of Pod
+dnsConfig:
+  {}
+  # options:
+  # - name: ndots
+  #   value: "1"
+
+# -- Annotations of producer Pod
+podAnnotations: {}
+
+# Pod level Security Context
+podSecurityContext:
+  # fsGroup: 2000
+  # fsGroupChangePolicy: OnRootMismatch
+  # TODO: fix permission as non-root
+  # @skip podSecurityContext.runAsUser
+  runAsUser: 0
+
+# -- Security Context of producer container
+# Example:
+#
+# securityContext:
+#   capabilities:
+#     drop:
+#     - ALL
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   runAsUser: 1000
+securityContext: {}
+
+# -- Settings of the service of all producers
+service:
+  # -- type of service
+  type: ClusterIP
+  # -- P2P port of service
+  p2p: 30333
+  # -- Prometheus port of service
+  prometheus: 9615
+
+# -- Resource seetings of producer container
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+resources: {}
+# -- nodeSelector of pod
+nodeSelector: {}
+# -- tolerations of pod
+tolerations: []
+# -- affinity of pod
+affinity: {}
+
+# Persistent Volume settings
+persistence:
+  # -- setup volumeClaimTemplate for chaindata persistent volume for producer statefulsets
+  enabled: true
+  # -- If set, use existing claim instead of creating a new one
+  existingClaim: ""
+  # -- Size of volume.
+  # **NOTICE**: gp3 volume can be live resized when more space needed, no need to provision a large volume at start
+  size: 10Gi
+  # -- storageClassName of PVC
+  storageClassName: ""
+  # -- accessModes of PVC
+  accessModes:
+    - ReadWriteOnce
+  # -- annotations of PVC
+  annotations: {}
+  # key: "value"
+  # -- Dir of volume to store chain data
+  chainBaseDir: ""
+  # -- EmptyDir settings
+  # Will be used when `persistence.enabled=false`
+  # Ref: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+  emptyDir:
+    {}
+    # medium: ''
+    # sizeLimit: ''
+
+# -- String to be used in labels
+nameOverride: ""
+# -- String to be used as the base of most resource names
+fullnameOverride: ""
+# -- String to be used in many resource names
+projectName: ""
+
+# -- Provides the Mnemonic and NodeKeys
+secret:
+  # -- create secret instead of using exsisting one
+  create: true
+  # -- if `create==false` this is the extra secret's name
+  name: ""
+  # -- ecdsa private key that will be inserted into the node's keystore
+  privateKey: ""
+  # @skip secret.keyInsertScript
+  keyInsertScript: |
+    rm /data/*/*/keystore/*
+    /usr/local/bin/alt-verifier key insert -d /data --chain=$CHAIN --suri="$PRIVATE_KEY" --key-type acco --scheme ecdsa;
+    ls /data/*/*/keystore
+
+# -- URL to download chainspec.json
+chainspec: ""
+# -- URL to download alt-instruction wasm file
+instructionWasm: ""
+
+# -- Exposed container ports
+ports:
+  # -- P2P port of verifier
+  p2p: 30333
+  # -- Prometheus port of verifier
+  prometheus: 9615
+
+# -- Liveness probe
+livenessProbe:
+  httpGet:
+    path: /metrics
+    port: prometheus
+  initialDelaySeconds: 0
+  timeoutSeconds: 1
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+# Readiness probe
+readinessProbe:
+  httpGet:
+    path: /metrics
+    port: prometheus
+  initialDelaySeconds: 0
+  timeoutSeconds: 1
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+hostPorts:
+  # -- P2P port
+  p2p:
+  # -- Prometheus port of producer
+  prometheus:
+
+env: {}
+
+# -- script that run before running verifier
+preRunScript: ""
+
+# -- verifier mode
+# options: EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger
+mode: "EthRollup"
+
+# -- layer1 settings
+l1:
+  # -- (int) chainId of layer1
+  chainId: null
+  # -- (list) rpcUrls of layer1
+  rpcUrls: null
+  contractAddress: ""
+
+# -- layer2 settings
+l2:
+  # -- (list) rpcUrls of layer2
+  rpcUrls: null
+  contractAddress: ""
+
+# -- (list) bootnodes of verifier
+bootnodes: null
+
+subCommand: ""
+
+# -- default args of verifier
+args: {}
+# -- <PRODUCER_ARGS>... of verifier
+producerArgs: {}
+
+# default args of rollup subcommand
+# @ignored
+rollup:
+  subCommand: rollup
+  args:
+    log: info,rollup-layer1=debug,commit=debug
+    chainId: "{{ .Values.l1.chainId }}"
+    l1ContractAddress: "{{ .Values.l1.contractAddress }}"
+    l2ContractAddress: "{{ .Values.l2.contractAddress }}"
+    verifierPrometheusExternal: true
+    verifierPrometheusPort: "{{ .Values.ports.prometheus }}"
+    onlyChallnger: '{{ has (.Values.mode | lower) (list "tower" "onlychallenger" ) }}'
+  producerArgs:
+    port: "{{ .Values.ports.p2p }}"
+    ignoreEthWitnessCheck: true
+
+# default args of test-challenger subcommand
+# @ignored
+challenger:
+  subCommand: test-rollup-challenger
+  args:
+    log: info,challenger=debug
+    chainId: "{{ .Values.l1.chainId }}"
+    challengeContractAddress: "{{ .Values.l1.contractAddress }}"
+    submissionContractAddress: "{{ .Values.l1.contractAddress }}"
+    l2BridgeContractAddress: "{{ .Values.l2.contractAddress }}"
+    fakeStartStep: 4000
+    fakeTotalStep: 4024
+    challengeCurrent: true
+  producerArgs:
+    port: "{{ .Values.ports.p2p }}"
+    ignoreEthWitnessCheck: true
+
+serviceMonitor:
+  # -- create prometheus-stack's serviceMonitor for producer
+  enabled: false

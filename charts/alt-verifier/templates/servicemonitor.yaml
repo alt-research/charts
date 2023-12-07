@@ -1,0 +1,19 @@
+{{- if $.Values.serviceMonitor.enabled }}
+  {{- if has (lower .Values.mode) (list "challenger" "testchallenger")}}
+  {{ fail "monitoring not supported for challenger mode" }}
+  {{- end }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "alt-verifier.fullname" $ }}
+  labels:
+    {{- include "alt-verifier.labels" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "alt-verifier.selectorLabels" $ | nindent 6 }}
+      index: all
+  endpoints:
+  - path: /metrics
+    port: prometheus
+{{- end }}

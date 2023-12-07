@@ -225,7 +225,8 @@ args: {}
 # -- <PRODUCER_ARGS>... of verifier
 producerArgs: {}
 
-# -- default args of rollup subcommand
+# default args of rollup subcommand
+# @ignored
 rollup:
   subCommand: rollup
   args:
@@ -240,7 +241,8 @@ rollup:
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true
 
-# -- default args of test-challenger subcommand
+# default args of test-challenger subcommand
+# @ignored
 challenger:
   subCommand: test-rollup-challenger
   args:

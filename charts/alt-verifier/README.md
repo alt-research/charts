@@ -6,6 +6,31 @@ Helm Chart for AltVerifier
 
 **Homepage:** <https://github.com/alt-research/charts>
 
+## How to install
+
+Access a Kubernetes cluster.
+
+Add a chart helm repository with follow commands:
+
+```console
+helm repo add alt https://alt-research.github.io/charts/
+helm repo update
+
+helm install --name alt-verifier alt/alt-verifier
+```
+
+## Commandline Arguments
+
+You can use both camelcased and dashed args without dashes prefix.
+
+For camelcased args, they be auto converted to dashed parameters.
+
+For example:
+- `validator: false` and `telemetryUrl: ''` will be omitted
+- `validator: "false"` will be `--validator=false`
+- `wsExternal: true` will be `--ws-external`
+- `rpcCors: all` will be `--rpc-cors=all`
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -64,15 +89,3 @@ Helm Chart for AltVerifier
 | args | object | `{}` | default args of verifier |
 | producerArgs | object | `{}` | <PRODUCER_ARGS>... of verifier |
 | serviceMonitor.enabled | bool | `false` | create prometheus-stack's serviceMonitor for producer |
-
-## Commandline Arguments
-
-You can use both camelcased and dashed args without dashes prefix.
-
-For camelcased args, they be auto converted to dashed parameters.
-
-For example:
-- `validator: false` and `telemetryUrl: ''` will be omitted
-- `validator: "false"` will be `--validator=false`
-- `wsExternal: true` will be `--ws-external`
-- `rpcCors: all` will be `--rpc-cors=all`

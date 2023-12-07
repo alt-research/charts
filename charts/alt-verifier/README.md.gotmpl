@@ -13,7 +13,19 @@
 
 {{ template "chart.requirementsSection" . }}
 
-{{ template "chart.valuesSection" . }}
+
+## How to install
+
+Access a Kubernetes cluster.
+
+Add a chart helm repository with follow commands:
+
+```console
+helm repo add alt https://alt-research.github.io/charts/
+helm repo update
+
+helm install --name {{ .Name }} alt/{{ .Name }}
+```
 
 ## Commandline Arguments
 
@@ -26,3 +38,5 @@ For example:
 - `validator: "false"` will be `--validator=false`
 - `wsExternal: true` will be `--ws-external`
 - `rpcCors: all` will be `--rpc-cors=all`
+
+{{ template "chart.valuesSection" . }}

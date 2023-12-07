@@ -45,7 +45,6 @@ helm.sh/chart: {{ include "alt-verifier.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-project.altlayer.io/name: {{ include "alt-verifier.projName" . }}
 {{- end }}
 
 {{/*
@@ -84,5 +83,23 @@ Check and assemble the Image:Tag
 {{- "networking.k8s.io/v1beta1" }}
 {{- else }}
 {{- "networking.k8s.io/v1beta1" }}
+{{- end }}
+{{- end }}
+
+
+{{- define "camelToDashArgs" -}}
+{{- range $k, $v := . }}
+{{- if $v }}
+    {{- if eq (toString $v) "true" }}
+--{{ kebabcase $k }}
+    {{- else if (kindIs "slice" $v)}}
+        {{- range $vi := $v}}
+--{{ kebabcase $k }}={{ tpl (toString $vi) $ | quote }}
+        {{- end }}
+    {{- else }}
+    {{fail (toYaml $v)  }}
+--{{ kebabcase $k }}={{ tpl (toString $v) $ | quote }}
+    {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

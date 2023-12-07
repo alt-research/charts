@@ -4,6 +4,13 @@
 
 Helm Charts of Alt Research
 
+## Add Repo
+
+```console
+helm repo add alt https://alt-research.github.io/charts/
+helm repo update
+```
+
 ## Working with GHCR
 
 ref: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
@@ -13,7 +20,7 @@ ref: https://docs.github.com/en/packages/working-with-a-github-packages-registry
 
 ## Charts
 
-- [alt-verifier](charts/alt-verifier): Helm Chart for AltVerifier
+-   [alt-verifier](charts/alt-verifier): Helm Chart for AltVerifier
 
 ## FAQ
 

@@ -201,18 +201,20 @@ preRunScript: ""
 # options: EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger
 mode: "EthRollup"
 
-# -- layer1 settings
+# layer1 settings
 l1:
   # -- (int) chainId of layer1
   chainId: null
-  # -- (list) rpcUrls of layer1
-  rpcUrls: null
+  # -- RPC URL of layer1
+  rpc: null
+  # -- contract address of layer1 diamond proxy
   contractAddress: ""
 
-# -- layer2 settings
+# layer2 settings
 l2:
-  # -- (list) rpcUrls of layer2
-  rpcUrls: null
+  # -- RPC URL of layer2
+  rpc: null
+  # -- contract address of layer2 bridge
   contractAddress: ""
 
 # -- (list) bootnodes of verifier
@@ -220,9 +222,9 @@ bootnodes: null
 
 subCommand: ""
 
-# -- default args of verifier
+# -- command line args of verifier
 args: {}
-# -- <PRODUCER_ARGS>... of verifier
+# -- <PRODUCER_ARGS>... command line args of verifier
 producerArgs: {}
 
 # default args of rollup subcommand
@@ -258,6 +260,7 @@ challenger:
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true
 
+# -- preset network configs. options: avs-goerli
 network: ""
 
 networks:
@@ -271,15 +274,11 @@ networks:
 
     l1:
       chainId: 5
-      rpcUrls:
-      - https://rpc.ankr.com:443/eth_goerli
-      - https://endpoints.omniatech.io:443/v1/eth/goerli/public
-      - https://goerli.blockpi.network:443/v1/rpc/public
-      - https://goerli.infura.io:443/v3/9aa3d95b3bc440fa88ea12eaa4456161
+      rpc: https://goerli.infura.io:443/v3/9aa3d95b3bc440fa88ea12eaa4456161
       contractAddress: 0x7A85FE92aacabd6c7CD440B3383ac194Ac6B4072
 
     l2:
-      rpcUrls: [wss://avs-goerli.alt.technology:443]
+      rpc: wss://avs-goerli.alt.technology:443
       chainId: 66669
       contractAddress: 0x54c6459B004Cf33244B2c5e813E62064C9Af8167
 

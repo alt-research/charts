@@ -28,16 +28,16 @@
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.challenger.args }}
   {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.challenger.producerArgs }}
   {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-challenger" .Release.Name ) }}
-  {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpcUrls }}
-  {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpcUrls }}
+  {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpc }}
+  {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpc }}
 {{/* if is EthRollup, Tower|OnlyChallenger mode */}}
 {{- else if has (lower .Values.mode) (list "ethrollup" "tower" "onlychallenger")}}
   {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
   {{- $subCommand = .Values.rollup.subCommand }}
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.rollup.args }}
   {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.rollup.producerArgs }}
-  {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpcUrls }}
-  {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpcUrls }}
+  {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpc }}
+  {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpc }}
   {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-ethrollup" .Release.Name ) }}
   {{- if has (lower .Values.mode) (list "tower" "onlychallenger")}}
     {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-tower" .Release.Name ) }}
@@ -62,17 +62,17 @@
 {{- if has (lower .Values.mode) (list "challenger" "testchallenger")}}
   {{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
   {{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
-  {{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
+  {{- $_ = required "l1.rpc is required" .Values.l1.rpc }}
   {{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
-  {{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
+  {{- $_ = required "l2.rpc is required" .Values.l2.rpc }}
   {{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
 {{/* EthRollup, Tower|OnlyChallenger mode */}}
 {{- else if has (lower .Values.mode) (list "ethrollup" "tower" "onlychallenger")}}
   {{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
   {{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
-  {{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
+  {{- $_ = required "l1.rpc is required" .Values.l1.rpc }}
   {{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
-  {{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
+  {{- $_ = required "l2.rpc is required" .Values.l2.rpc }}
   {{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
 {{/* Beacon Rollup mode */}}
 {{- else if eq (lower .Values.mode) "beaconrollup" }}

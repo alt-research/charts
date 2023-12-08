@@ -76,7 +76,7 @@ podSecurityContext:
 #   runAsUser: 1000
 securityContext: {}
 
-# -- Settings of the service of all producers
+# Settings of the service of all producers
 service:
   # -- type of service
   type: ClusterIP
@@ -138,7 +138,7 @@ fullnameOverride: ""
 # -- String to be used in many resource names
 projectName: ""
 
-# -- Provides the Mnemonic and NodeKeys
+# Provides the Mnemonic and NodeKeys
 secret:
   # -- create secret instead of using exsisting one
   create: true
@@ -157,7 +157,7 @@ chainspec: ""
 # -- URL to download alt-instruction wasm file
 instructionWasm: ""
 
-# -- Exposed container ports
+# Exposed container ports
 ports:
   # -- P2P port of verifier
   p2p: 30333
@@ -165,6 +165,7 @@ ports:
   prometheus: 9615
 
 # -- Liveness probe
+# @default -- check [values.yaml](./values.yaml)
 livenessProbe:
   httpGet:
     path: /metrics
@@ -175,7 +176,8 @@ livenessProbe:
   successThreshold: 1
   failureThreshold: 3
 
-# Readiness probe
+# -- Readiness probe
+# @default -- check [values.yaml](./values.yaml)
 readinessProbe:
   httpGet:
     path: /metrics

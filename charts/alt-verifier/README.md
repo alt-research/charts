@@ -66,7 +66,6 @@ For example:
 | dnsConfig | object | `{}` | DNS config of Pod |
 | podAnnotations | object | `{}` | Annotations of producer Pod |
 | securityContext | object | `{}` | Security Context of producer container Example:  securityContext:   capabilities:     drop:     - ALL   readOnlyRootFilesystem: true   runAsNonRoot: true   runAsUser: 1000 |
-| service | object | `{"p2p":30333,"prometheus":9615,"type":"ClusterIP"}` | Settings of the service of all producers |
 | service.type | string | `"ClusterIP"` | type of service |
 | service.p2p | int | `30333` | P2P port of service |
 | service.prometheus | int | `9615` | Prometheus port of service |
@@ -85,16 +84,15 @@ For example:
 | nameOverride | string | `""` | String to be used in labels |
 | fullnameOverride | string | `""` | String to be used as the base of most resource names |
 | projectName | string | `""` | String to be used in many resource names |
-| secret | object | `{"create":true,"keyInsertScript":"rm /data/*/*/keystore/*\n/usr/local/bin/alt-verifier key insert -d /data --chain=$CHAIN --suri=\"$PRIVATE_KEY\" --key-type acco --scheme ecdsa;\nls /data/*/*/keystore\n","name":"","privateKey":""}` | Provides the Mnemonic and NodeKeys |
 | secret.create | bool | `true` | create secret instead of using exsisting one |
 | secret.name | string | `""` | if `create==false` this is the extra secret's name |
 | secret.privateKey | string | `""` | ecdsa private key that will be inserted into the node's keystore |
 | chainspec | string | `""` | URL to download chainspec.json |
 | instructionWasm | string | `""` | URL to download alt-instruction wasm file |
-| ports | object | `{"p2p":30333,"prometheus":9615}` | Exposed container ports |
 | ports.p2p | int | `30333` | P2P port of verifier |
 | ports.prometheus | int | `9615` | Prometheus port of verifier |
-| livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/metrics","port":"prometheus"},"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe |
+| livenessProbe | object | check [values.yaml](./values.yaml) | Liveness probe |
+| readinessProbe | object | check [values.yaml](./values.yaml) | Readiness probe |
 | hostPorts.p2p | string | `nil` | P2P port |
 | hostPorts.prometheus | string | `nil` | Prometheus port of producer |
 | preRunScript | string | `""` | script that run before running verifier |

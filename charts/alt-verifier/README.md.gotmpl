@@ -28,13 +28,13 @@ helm repo update
 
 ### Install as challenger
 
-```
+```console
 helm upgrade --install challenger alt/alt-verifier --set network=avs-goerli --set mode=challenger --set secret.privateKey=0x...
 ```
 
 ### Install as watch tower
 
-```
+```console
 helm upgrade --install watchtower alt/alt-verifier --set network=avs-goerli --set mode=tower --set secret.privateKey=0x...
 ```
 

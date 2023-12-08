@@ -16,8 +16,18 @@ Add a chart helm repository with follow commands:
 ```console
 helm repo add alt https://alt-research.github.io/charts/
 helm repo update
+```
 
-helm install --name alt-verifier alt/alt-verifier
+### Install as challenger
+
+```
+helm upgrade --install challenger alt/alt-verifier --set network=avs-goerli --set mode=challenger --set secret.privateKey=0x...
+```
+
+### Install as watch tower
+
+```
+helm upgrade --install watchtower alt/alt-verifier --set network=avs-goerli --set mode=tower --set secret.privateKey=0x...
 ```
 
 ## Commandline Arguments

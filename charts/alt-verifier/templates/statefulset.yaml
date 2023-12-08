@@ -1,3 +1,11 @@
+{{- $_ := ""  }}
+{{- if .Values.network }}
+{{- $vals := get .Values.networks .Values.network }}
+{{- if $vals }}
+  {{- $_ = mustMergeOverwrite $.Values $vals }}
+{{- end }}
+{{- end }}
+
 {{- $fullname := include "alt-verifier.fullname" . }}
 {{- $secretName := include "alt-verifier.secretName" . }}
 {{- $subCommand := $.Values.subCommand }}
@@ -9,13 +17,13 @@
 {{- $fixedArgs = set $fixedArgs "verifierName" $fullname }}
 {{- $fixedArgs = set $fixedArgs "chain" "/data/chainspec.json" }}
 {{- if .Values.instructionWasmUrl }}
-  {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
 {{- end }}
 
 {{- $fixedProducerArgs = set $fixedProducerArgs "bootnodes" .Values.bootnodes }}
 
 {{/* if is challenge mode */}}
 {{- if has (lower .Values.mode) (list "challenger" "testchallenger")}}
+  {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
   {{- $subCommand = .Values.challenger.subCommand }}
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.challenger.args }}
   {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.challenger.producerArgs }}
@@ -24,6 +32,7 @@
   {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpcUrls }}
 {{/* if is EthRollup, Tower|OnlyChallenger mode */}}
 {{- else if has (lower .Values.mode) (list "ethrollup" "tower" "onlychallenger")}}
+  {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
   {{- $subCommand = .Values.rollup.subCommand }}
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.rollup.args }}
   {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.rollup.producerArgs }}
@@ -47,30 +56,29 @@
 {{- end }}
 
 {{/* validation */}}
-{{- $_ := ""  }}
-{{- $_ = required "chainspec is required" .Values.chainspec }}
-{{- $_ = required "bootnodes are required" .Values.bootnodes }}
+  {{- $_ = required "chainspec is required" .Values.chainspec }}
+  {{- $_ = required "bootnodes are required" .Values.bootnodes }}
 {{/* is challenge mode */}}
 {{- if has (lower .Values.mode) (list "challenger" "testchallenger")}}
-{{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
-{{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
-{{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
-{{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
-{{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
-{{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
+  {{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
+  {{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
+  {{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
+  {{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
+  {{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
+  {{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
 {{/* EthRollup, Tower|OnlyChallenger mode */}}
 {{- else if has (lower .Values.mode) (list "ethrollup" "tower" "onlychallenger")}}
-{{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
-{{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
-{{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
-{{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
-{{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
-{{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
+  {{- $_ = required "instructionWasm is required" .Values.instructionWasm }}
+  {{- $_ = required "l1.chainId is required" .Values.l1.chainId }}
+  {{- $_ = required "l1.rpcUrls is required" .Values.l1.rpcUrls }}
+  {{- $_ = required "l1.contractAddress is required" .Values.l1.contractAddress }}
+  {{- $_ = required "l2.rpcUrls is required" .Values.l2.rpcUrls }}
+  {{- $_ = required "l2.contractAddress is required" .Values.l2.contractAddress }}
 {{/* Beacon Rollup mode */}}
 {{- else if eq (lower .Values.mode) "beaconrollup" }}
-{{ fail "BeaconRollup mode not supported yet" }}
+  {{ fail "BeaconRollup mode not supported yet" }}
 {{- else }}
-{{ fail "Unknown mode, avaliable options are EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger" }}
+  {{ fail "Unknown mode, avaliable options are EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger" }}
 {{- end }}
 
 {{- $preRunScript := trim $.Values.preRunScript }}
@@ -144,7 +152,7 @@ spec:
               name: {{ $secretName }}
               key: privateKey
         - name: CHAIN
-          value: "{{ $.Values.chainspec.name }}"
+          value: /data/chainspec.json
         command:
         - /bin/bash
         - -c

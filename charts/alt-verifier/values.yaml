@@ -258,6 +258,34 @@ challenger:
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true
 
+network: ""
+
+networks:
+  avs-goerli:
+    image:
+      tag: v0.7.3
+
+    # URL for downloading chainspec and instruction runtime
+    chainspec: https://s3.us-west-2.amazonaws.com/operator-public/chainspec/producer/default/avsgor/chainspec.raw.json
+    instructionWasm: https://s3.us-west-2.amazonaws.com/operator-public/chainspec/producer/default/avsgor/alt_instruction_runtime.compact.wasm
+
+    l1:
+      chainId: 5
+      rpcUrls:
+      - https://rpc.ankr.com:443/eth_goerli
+      - https://endpoints.omniatech.io:443/v1/eth/goerli/public
+      - https://goerli.blockpi.network:443/v1/rpc/public
+      - https://goerli.infura.io:443/v3/9aa3d95b3bc440fa88ea12eaa4456161
+      contractAddress: 0x7A85FE92aacabd6c7CD440B3383ac194Ac6B4072
+
+    l2:
+      rpcUrls: [wss://avs-goerli.alt.technology:443]
+      chainId: 66669
+      contractAddress: 0x54c6459B004Cf33244B2c5e813E62064C9Af8167
+
+    bootnodes:
+      - /dns/avsgor-archive-0-0.altlayer.network/tcp/30333/ws/p2p/12D3KooWFnJdKjBA9SL1WkTDjf28pXqYabVmfjTsyrEDe2p2K8o8
+
 serviceMonitor:
   # -- create prometheus-stack's serviceMonitor for producer
   enabled: false

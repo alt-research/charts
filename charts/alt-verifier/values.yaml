@@ -200,7 +200,7 @@ env: {}
 preRunScript: ""
 
 # -- verifier mode
-# options: EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger
+# options: EthRollup, Tower|WatchTower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger
 mode: "EthRollup"
 
 # layer1 settings
@@ -240,7 +240,7 @@ rollup:
     l2ContractAddress: "{{ .Values.l2.contractAddress }}"
     verifierPrometheusExternal: true
     verifierPrometheusPort: "{{ .Values.ports.prometheus }}"
-    onlyChallnger: '{{ has (.Values.mode | lower) (list "tower" "onlychallenger" ) }}'
+    onlyChallenger: '{{ has (.Values.mode | lower) (list "watchtower" "tower" "onlychallenger" ) }}'
   producerArgs:
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true

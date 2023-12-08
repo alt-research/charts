@@ -1,7 +1,7 @@
 # alt-verifier
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/alt-verifier)](https://artifacthub.io/packages/search?repo=alt-verifier)
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3](https://img.shields.io/badge/AppVersion-v0.7.3-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3](https://img.shields.io/badge/AppVersion-v0.7.3-informational?style=flat-square)
 
 Helm Chart for AltVerifier
 
@@ -96,7 +96,7 @@ For example:
 | hostPorts.p2p | string | `nil` | P2P port |
 | hostPorts.prometheus | string | `nil` | Prometheus port of producer |
 | preRunScript | string | `""` | script that run before running verifier |
-| mode | string | `"EthRollup"` | verifier mode options: EthRollup, Tower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger |
+| mode | string | `"EthRollup"` | verifier mode options: EthRollup, Tower|WatchTower|OnlyChallenger, BeaconRollup, Challenger|TestChallenger |
 | l1.chainId | int | `nil` | chainId of layer1 |
 | l1.rpc | string | `nil` | RPC URL of layer1 |
 | l1.contractAddress | string | `""` | contract address of layer1 diamond proxy |

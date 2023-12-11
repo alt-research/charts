@@ -276,7 +276,7 @@ networks:
 
     l1:
       chainId: 5
-      rpc: ""
+      # rpc: ""
       contractAddress: 0x7A85FE92aacabd6c7CD440B3383ac194Ac6B4072
 
     l2:

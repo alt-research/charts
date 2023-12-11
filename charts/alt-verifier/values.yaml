@@ -276,7 +276,7 @@ networks:
 
     l1:
       chainId: 5
-      rpc: https://goerli.infura.io:443/v3/9aa3d95b3bc440fa88ea12eaa4456161
+      rpc: ""
       contractAddress: 0x7A85FE92aacabd6c7CD440B3383ac194Ac6B4072
 
     l2:

@@ -28,22 +28,27 @@ helm repo update
 
 ### Install as challenger
 
+For layer1 RPC URL, we suggest you to use alchemy or other RPC provider with more methods avaliable.
+Infura cannot be used for verifier cause it lacks support for some required methods.
+
 ```console
 helm upgrade --install challenger alt/alt-verifier \
+    --version {{ template "chart.version" . }}	\
     --set mode=challenger \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
-    --set l1.rpc=https://goerli.infura.io/v3/...
+    --set l1.rpc=https://eth-goerli.g.alchemy.com/v2/...
 ```
 
 ### Install as watch tower
 
 ```console
 helm upgrade --install watchtower alt/alt-verifier \
+    --version {{ template "chart.version" . }} \
     --set mode=tower \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
-    --set l1.rpc=https://goerli.infura.io/v3/...
+    --set l1.rpc=https://eth-goerli.g.alchemy.com/v2/...
 ```
 
 ## Commandline Arguments

@@ -1,7 +1,7 @@
 # alt-verifier
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/alt-verifier)](https://artifacthub.io/packages/search?repo=alt-verifier)
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3](https://img.shields.io/badge/AppVersion-v0.7.3-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3](https://img.shields.io/badge/AppVersion-v0.7.3-informational?style=flat-square)
 
 Helm Chart for AltVerifier
 
@@ -20,22 +20,27 @@ helm repo update
 
 ### Install as challenger
 
+For layer1 RPC URL, we suggest you to use alchemy or other RPC provider with more methods avaliable.
+Infura cannot be used for verifier cause it lacks support for some required methods.
+
 ```console
 helm upgrade --install challenger alt/alt-verifier \
+    --version 0.1.4	\
     --set mode=challenger \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
-    --set l1.rpc=https://goerli.infura.io/v3/...
+    --set l1.rpc=https://eth-goerli.g.alchemy.com/v2/...
 ```
 
 ### Install as watch tower
 
 ```console
 helm upgrade --install watchtower alt/alt-verifier \
+    --version 0.1.4 \
     --set mode=tower \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
-    --set l1.rpc=https://goerli.infura.io/v3/...
+    --set l1.rpc=https://eth-goerli.g.alchemy.com/v2/...
 ```
 
 ## Commandline Arguments

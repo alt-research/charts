@@ -1,7 +1,7 @@
 # alt-verifier
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/alt-verifier)](https://artifacthub.io/packages/search?repo=alt-verifier)
-![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3-6](https://img.shields.io/badge/AppVersion-v0.7.3--6-informational?style=flat-square)
+![Version: 0.1.10](https://img.shields.io/badge/Version-0.1.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.3-6](https://img.shields.io/badge/AppVersion-v0.7.3--6-informational?style=flat-square)
 
 Helm Chart for AltVerifier
 
@@ -25,7 +25,7 @@ Infura cannot be used for verifier cause it lacks support for some required meth
 
 ```console
 helm upgrade --install challenger alt/alt-verifier \
-    --version 0.1.9	\
+    --version 0.1.10	\
     --set mode=challenger \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
@@ -36,7 +36,7 @@ helm upgrade --install challenger alt/alt-verifier \
 
 ```console
 helm upgrade --install watchtower alt/alt-verifier \
-    --version 0.1.9 \
+    --version 0.1.10 \
     --set mode=tower \
     --set network=avs-goerli \
     --set secret.privateKey=0x... \
@@ -79,6 +79,7 @@ For example:
 | tolerations | list | `[]` | tolerations of pod |
 | affinity | object | `{}` | affinity of pod |
 | persistence.enabled | bool | `true` | setup volumeClaimTemplate for chaindata persistent volume for producer statefulsets |
+| persistence.claimRetentionPolicy | object | `{"whenDeleted":"Delete","whenScaled":"Delete"}` | persistentVolumeClaimRetentionPolicy, value can be Retain or Delete. ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention |
 | persistence.existingClaim | string | `""` | If set, use existing claim instead of creating a new one |
 | persistence.size | string | `"1Gi"` | Size of volume. **NOTICE**: gp3 volume can be live resized when more space needed, no need to provision a large volume at start |
 | persistence.storageClassName | string | `""` | storageClassName of PVC |

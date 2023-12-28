@@ -108,6 +108,11 @@ affinity: {}
 persistence:
   # -- setup volumeClaimTemplate for chaindata persistent volume for producer statefulsets
   enabled: true
+  # -- persistentVolumeClaimRetentionPolicy, value can be Retain or Delete.
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+  claimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
   # -- If set, use existing claim instead of creating a new one
   existingClaim: ""
   # -- Size of volume.

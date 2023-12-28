@@ -247,6 +247,8 @@ spec:
         persistentVolumeClaim:
           claimName: {{ printf "%s" (tpl $.Values.persistence.existingClaim .) }}
   {{- else }}
+  persistentVolumeClaimRetentionPolicy:
+    {{- $.Values.persistence.claimRetentionPolicy | toYaml | nindent 4 }}
   volumeClaimTemplates:
   - metadata:
       name: persistence

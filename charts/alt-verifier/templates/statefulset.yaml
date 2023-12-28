@@ -11,21 +11,19 @@
 {{- $subCommand := $.Values.subCommand }}
 # command and args
 {{- $fixedArgs := dict }}
-{{- $fixedProducerArgs := dict }}
 
 {{- $fixedArgs = set $fixedArgs "basePath" "/data" }}
 {{- $fixedArgs = set $fixedArgs "chain" "/data/chainspec.json" }}
 {{- if .Values.instructionWasmUrl }}
 {{- end }}
 
-{{- $fixedProducerArgs = set $fixedProducerArgs "bootnodes" .Values.bootnodes }}
+{{- $fixedArgs = set $fixedArgs "bootnodes" .Values.bootnodes }}
 
 {{/* if is challenge mode */}}
 {{- if has (lower .Values.mode) (list "challenger" "testchallenger")}}
   {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
   {{- $subCommand = .Values.challenger.subCommand }}
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.challenger.args }}
-  {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.challenger.producerArgs }}
   {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpc }}
   {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpc }}
 {{/* if is EthRollup, Tower|OnlyChallenger mode */}}
@@ -33,7 +31,6 @@
   {{- $fixedArgs = set $fixedArgs "instructionWasmPath" "/data/instruction.wasm" }}
   {{- $subCommand = .Values.rollup.subCommand }}
   {{- $fixedArgs = mustMergeOverwrite $fixedArgs $.Values.rollup.args }}
-  {{- $fixedProducerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.rollup.producerArgs }}
   {{- $fixedArgs = set $fixedArgs "layer1Url" .Values.l1.rpc }}
   {{- $fixedArgs = set $fixedArgs "producerUrl" .Values.l2.rpc }}
   {{- $fixedArgs = set $fixedArgs "verifierName" (printf "%s-ethrollup" .Release.Name ) }}
@@ -46,11 +43,7 @@
 
 {{- $args := $fixedArgs }}
 {{- if $.Values.args }}
-{{- $args = mustMergeOverwrite $fixedArgs $.Values.args }}
-{{- end }}
-{{- $producerArgs := $fixedProducerArgs }}
-{{- if $.Values.producerArgs }}
-{{- $producerArgs = mustMergeOverwrite $fixedProducerArgs $.Values.producerArgs }}
+  {{- $args = mustMergeOverwrite $fixedArgs $.Values.args }}
 {{- end }}
 
 {{/* validation */}}
@@ -200,20 +193,6 @@ spec:
           exec alt-verifier
           {{- $subCommand | nindent 10 }}
           {{- range $k, $v := $args }}
-          {{- if $v }}
-              {{- if eq (toString $v) "true" }}
-          --{{ kebabcase $k }}
-              {{- else if (kindIs "slice" $v)}}
-                  {{- range $vi := $v}}
-          --{{ kebabcase $k }}={{ tpl (toString $vi) $ | quote }}
-                  {{- end }}
-              {{- else }}
-          --{{ kebabcase $k }}={{ tpl (toString $v) $ | quote }}
-              {{- end }}
-          {{- end }}
-          {{- end }}
-          --
-          {{- range $k, $v := $producerArgs }}
           {{- if $v }}
               {{- if eq (toString $v) "true" }}
           --{{ kebabcase $k }}

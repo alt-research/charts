@@ -170,7 +170,7 @@ livenessProbe:
   httpGet:
     path: /metrics
     port: prometheus
-  initialDelaySeconds: 0
+  initialDelaySeconds: 60
   timeoutSeconds: 1
   periodSeconds: 10
   successThreshold: 1
@@ -241,10 +241,7 @@ rollup:
     verifierPrometheusExternal: true
     verifierPrometheusPort: "{{ .Values.ports.prometheus }}"
     onlyChallenger: '{{ has (.Values.mode | lower) (list "watchtower" "tower" "onlychallenger" ) }}'
-  producerArgs:
-    lightNode: true
     port: "{{ .Values.ports.p2p }}"
-    ignoreEthWitnessCheck: true
 
 # default args of test-challenger subcommand
 # @ignored
@@ -259,10 +256,7 @@ challenger:
     fakeStartStep: 4000
     fakeTotalStep: 4024
     challengeCurrent: true
-  producerArgs:
-    lightNode: true
     port: "{{ .Values.ports.p2p }}"
-    ignoreEthWitnessCheck: true
 
 # -- preset network configs. options: avs-goerli
 network: ""

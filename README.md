@@ -22,6 +22,18 @@ ref: https://docs.github.com/en/packages/working-with-a-github-packages-registry
 
 -   [alt-verifier](charts/alt-verifier): Helm Chart for AltVerifier
 
+## Development Guide
+
+1. Install [pre-commit](https://pre-commit.com) hooks
+
+```console
+pre-commit install
+```
+
+2. [helm-docs](https://github.com/norwoodj/helm-docs) is used to generate README.md from chart's `templates/NOTES.txt` and `values.yaml`
+
+   If you want to update README.md, edit `README.md.gotmpl` and run `./generate-docs.sh`
+
 ## FAQ
 
 **Q:** Commit Hook or CI failed with message like `Error: no repository definition for XXX. Please add the missing repos via 'helm repo add'`

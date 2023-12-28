@@ -112,7 +112,7 @@ persistence:
   existingClaim: ""
   # -- Size of volume.
   # **NOTICE**: gp3 volume can be live resized when more space needed, no need to provision a large volume at start
-  size: 10Gi
+  size: 1Gi
   # -- storageClassName of PVC
   storageClassName: ""
   # -- accessModes of PVC
@@ -242,6 +242,7 @@ rollup:
     verifierPrometheusPort: "{{ .Values.ports.prometheus }}"
     onlyChallenger: '{{ has (.Values.mode | lower) (list "watchtower" "tower" "onlychallenger" ) }}'
   producerArgs:
+    lightNode: true
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true
 
@@ -259,6 +260,7 @@ challenger:
     fakeTotalStep: 4024
     challengeCurrent: true
   producerArgs:
+    lightNode: true
     port: "{{ .Values.ports.p2p }}"
     ignoreEthWitnessCheck: true
 
@@ -268,7 +270,7 @@ network: ""
 networks:
   avs-goerli:
     image:
-      tag: v0.7.3
+      tag: v0.7.3-6
 
     # URL for downloading chainspec and instruction runtime
     chainspec: https://s3.us-west-2.amazonaws.com/operator-public/chainspec/producer/default/avsgor/chainspec.raw.json

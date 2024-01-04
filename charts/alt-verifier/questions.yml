@@ -1,0 +1,29 @@
+categories:
+- AVS Node
+questions:
+- variable: network
+  group: "Options"
+  default: "avs-goerli"
+  description: "Preset network configs"
+  label: Network
+  type: enum
+  options:
+  - avs-goerli
+  - null
+- variable: mode
+  default: "EthRollup"
+  description: "Mode of verifier"
+  label: Mode
+  type: enum
+  options:
+  - EthRollup
+  - WatchTower
+  - Challenger
+- variable: l1.rpc
+  description: "RPC URL of layer1"
+  label: Layer1 RPC URL
+  type: string
+- variable: secret.privateKey
+  description: "Private key of verifier"
+  label: Private Key
+  type: string
